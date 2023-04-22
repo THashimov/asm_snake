@@ -3,15 +3,42 @@
 call disc_load
 call init_start_point
 
-start:
-    inc word [len_of_snake]
+move_down:
+call draw_snake_down
+call sleep
+call clear_screen
+jmp move_down
+
+
+draw_snake_down:
     call draw_square
     inc dx
-    cmp word [len_of_snake], 3
-    jne start
-    mov word [len_of_snake], 0
-    jmp $
+    inc word [squares_drawn]
+    push ax
+    mov al, [squares_drawn]
+    cmp al, [len_of_snake]
+    pop ax
+    jc draw_snake_down
+    mov word [squares_drawn], 0
+    ret
 
+clear_screen:
+    push ax
+    mov ah, 0
+    mov al, 0x13
+    int 0x10
+    pop ax
+    ret
+
+sleep:
+    push cx
+    push ax
+    mov cx, 0x9 ; Wait 0.5 seconds
+    mov ah, 0x86 
+    int 0x15
+    pop ax
+    pop cx
+    ret
 
 draw_square:
     inc word [row_counter]
@@ -59,4 +86,5 @@ row_pos: dw 50
 col_counter: dw 0
 row_counter: dw 0
 
-len_of_snake: dw 0
+len_of_snake: dw 3
+squares_drawn: dw 0
