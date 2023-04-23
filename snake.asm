@@ -3,24 +3,21 @@
 call disc_load
 call init_start_point
 
-check_for_key:
-    call check_for_w_press
-    cmp byte [direction], 's'
+main_loop:
+    call check_for_key_press
+    cmp word [direction], 's'
     je down
     
     call move_up
-    jmp check_for_key
+    jmp main_loop
 
     down:
         call move_down
 
-    jmp check_for_key
-    
-    ; je change_direction
-    ; cmp al, 's'
-    ; je change_direction
+    jmp main_loop   
+ 
 
-check_for_w_press:
+check_for_key_press:
     pusha
     mov ah, 1
     int 0x16
@@ -31,20 +28,21 @@ check_for_w_press:
     jmp s_pressed
 
     w_pressed:
-        mov byte [direction], 'w'
+        mov word [direction], 'w'
         jmp no_key
 
     s_pressed:
-        mov byte [direction], 's'
+        mov word [direction], 's'
         jmp no_key
 
     no_key:
+        
         popa
-        mov ah, 0x0 ; Set graphical mode
-        mov al, 0x13 ; 320x200 screen
-        int 0x10
-        mov ah, 0xC
-        mov al, 0xF
+        ; mov ah, 0x0 ; Set graphical mode
+        ; mov al, 0x13 ; 320x200 screen
+        ; int 0x10
+        ; mov ah, 0xC
+        ; mov al, 0xF
         ret
 
 check_for_s_press:
@@ -111,7 +109,7 @@ clear_screen:
 sleep:
     push cx
     push ax
-    mov cx, 0x9 ; Wait 0.5 seconds
+    mov cx, 0x5 ; Wait 0.25 seconds
     mov ah, 0x86 
     int 0x15
     pop ax
@@ -165,4 +163,4 @@ row_counter: dw 0
 len_of_snake: dw 3
 squares_drawn: dw 0
 
-direction: db 's'
+direction: dw 's'
