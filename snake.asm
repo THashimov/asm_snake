@@ -4,38 +4,51 @@ call disc_load
 call init_start_point
 
 check_for_key:
+    call check_for_w_press
+    cmp byte [direction], 's'
+    je down
+    
+    call move_up
     jmp check_for_key
-    ; pusha
-    ; mov ah, 0
-    ; int 0x16
-    ; cmp al, 'w'
+
+    down:
+        call move_down
+
+    jmp check_for_key
+    
     ; je change_direction
     ; cmp al, 's'
     ; je change_direction
 
-    ; jmp main_loop
+check_for_w_press:
+    pusha
+    mov ah, 1
+    int 0x16
+    jz no_key
+    cmp al, 'w'
+    je w_pressed
+    
+    jmp s_pressed
 
-    ; change_direction:
-    ;     popa
-    ;     ; int 0x10
-    ;     mov byte [direction], al
+    w_pressed:
+        mov byte [direction], 'w'
+        jmp no_key
 
-    ; main_loop:
-    ;     popa
-    ;     ; int 0x10
-    ;     cmp byte [direction], 's'
-    ;     jne up
+    s_pressed:
+        mov byte [direction], 's'
+        jmp no_key
 
-    ;     down:
-    ;         call move_down
-    ;         jmp check_for_key
+    no_key:
+        popa
+        mov ah, 0x0 ; Set graphical mode
+        mov al, 0x13 ; 320x200 screen
+        int 0x10
+        mov ah, 0xC
+        mov al, 0xF
+        ret
 
-    ;     cmp byte [direction], 'w'
-    ;     jne down
-
-    ;     up:
-    ;         call move_up
-    ;         jmp check_for_key
+check_for_s_press:
+    ret
 
 move_up:
     call draw_snake_vert
