@@ -4,15 +4,27 @@ call disc_load
 call init_start_point
 
 move_down:
-call draw_snake_down
-call sleep
-call clear_screen
-jmp move_down
+    call draw_snake_down
+    call sleep
+    call clear_screen
+    call decrement_head
+    jmp move_down
 
+decrement_head:
+    ; For each square in the snake length, we sub 12 from dx
+    ; With each move, the head moves 12 pixels. 10 for the body square and two to give a gap between squares
+    push ax
+    mov al, 1
+    for_each_square:
+        sub dx, 12
+        inc al
+        cmp al, [len_of_snake]
+        jne for_each_square
+    pop ax 
+    ret
 
 draw_snake_down:
     call draw_square
-    inc dx
     inc word [squares_drawn]
     push ax
     mov al, [squares_drawn]
@@ -44,13 +56,14 @@ draw_square:
     inc word [row_counter]
     int 0x10 ; Draw the starting pixel
     call draw_right ; Draw a row
-    mov cx, [col_pos] ; Reset the starting point of 
-    inc dx
+    mov cx, [col_pos] ; Reset the starting point of x
+    inc dx ; Draw the next line down
     cmp word [row_counter], 11
     jne draw_square
     mov word [row_counter], 0
+    inc dx ; Go to next line to leave a gap between squares
+    mov [row_pos], dx ; Set the y pos to the current position
     ret
-
 
 draw_right:
     inc word [col_counter] ; Increment col_counter every iteration
@@ -60,7 +73,6 @@ draw_right:
     jne draw_right ; If not, run loop again
     mov word [col_counter], 0 ; If finished, reset col counter
     ret
-
 
 init_start_point:
     mov ah, 0x0 ; Set graphical mode
@@ -73,9 +85,8 @@ init_start_point:
     ret
 
 
-%include "print.asm"
+; %include "print.asm"
 %include "read_disc.asm"
-
 
 times 510-($ - $$) db 0
 db 0x55, 0xaa

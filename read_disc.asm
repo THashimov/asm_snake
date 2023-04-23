@@ -14,19 +14,19 @@ disc_load:
     mov es, [zero] ; Not quite sure why we set es to zero
     mov bx, 0x7E00 ; Set the address we want to start at
     int 0x13
-    jc disc_error
-    cmp al, 1
-    jne disc_error
+    ; jc disc_error
+    ; cmp al, 1
+    ; jne disc_error
     popa
     ret
 
-disc_error:
-    mov bx, DISC_ERR_MSG
-    call print_string
-    jmp $
+; disc_error:
+;     mov bx, DISC_ERR_MSG
+;     call print_string
+;     jmp $
 
 
-DISC_ERR_MSG:
-    db "Error reading disc!", 0
+; DISC_ERR_MSG:
+;     db "Error reading disc!", 0
 
 zero: db 0
